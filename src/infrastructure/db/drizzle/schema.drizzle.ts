@@ -25,7 +25,10 @@ export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   fullName: varchar('full_name', {length: 255}).notNull(),
   phoneNumber: varchar('phone_number', {length: 255}).notNull().unique(),
-  chat_id: varchar('chat_id', {length: 100}),
+  email: varchar('email', {length: 255}).unique(),
+  passwordHash: varchar('password_hash', {length: 255}),
+  telegramId: varchar('telegram_id', {length: 255}).unique(),
+  chatId: varchar('chat_id', {length: 100}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull()
 });
