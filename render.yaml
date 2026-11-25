@@ -55,7 +55,7 @@ services:
         sync: false
       - key: MAIL_FROM
         sync: false
-      - key: RESEND_API_KEY
+      - key: SMTP_URL
         sync: false
       - key: TELEGRAM_BOT_TOKEN
         sync: false

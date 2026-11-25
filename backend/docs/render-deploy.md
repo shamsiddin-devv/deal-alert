@@ -10,7 +10,11 @@ Frontend Render Static Site sifatida `frontend/dist` katalogidan beriladi. API v
 
 `render.yaml` SPA marshrutlarini tayyorlaydi va frontendning Render originini backenddagi `APP_ORIGIN`ga beradi. Servislar yaratilgach, aynan shu workspace’dagi backendning haqiqiy HTTPS URL’ini tasdiqlang. Static Site’da `/api/*` uchun `Rewrite` qoidasini yarating. Destination qiymati backendning HTTPS URL’i va `/api/*`dan iborat. Masalan, `https://example-api.onrender.com/api/*`. Brauzer sessiyasi frontend originidagi HttpOnly cookie orqali ishlaydi.
 
-Web Service uchun `DATABASE_URL` sifatida bulut PostgreSQL ulanishidan foydalaning. Render Free SMTP portlarini yopadi. Email tasdiqlash uchun `RESEND_API_KEY` va tasdiqlangan `MAIL_FROM` ni Render maxfiy sozlamalariga kiriting. Telegram tokeni va bot nomi Web Service sozlamalariga tegishli. Telegram webhook’i Web Service manzilida ro‘yxatdan o‘tadi.
+Web Service uchun `DATABASE_URL` sifatida Neon pooled PostgreSQL ulanishini bering. Drizzle migratsiyalari uchun `DATABASE_MIGRATION_URL` orqali Neon direct ulanishidan foydalaning. Lokal baza va Render bazasi alohida saqlanadi.
+
+Render Free 25, 465 va 587 SMTP portlarini bloklaydi. Brevo SMTP rasmiy 2525-portda STARTTLS bilan ishlaydi. Web Service’dagi `SMTP_URL` Brevo SMTP login, SMTP kaliti, `smtp-relay.brevo.com` hosti va 2525-portdan tuziladi. Login hamda kalitni URL percent-encoding bilan yozing. `MAIL_FROM` uchun Brevo’da tasdiqlangan jo‘natuvchi manzilidan foydalaning. [Brevo SMTP parametrlari](https://help.brevo.com/hc/en-us/articles/115000188150-Troubleshooting-Issues-with-Brevo-SMTP)
+
+Telegram tokeni va bot nomi Web Service sozlamalariga tegishli. Telegram webhook’i Web Service manzilida ro‘yxatdan o‘tadi.
 
 Yakuniy sinovda quyidagilarni tekshiring.
 
