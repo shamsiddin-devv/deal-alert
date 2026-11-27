@@ -1,98 +1,79 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Deal Alert
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Deal Alert tracks product prices across supported Uzbek marketplaces. Save listings, set target prices, follow price history, compare matching offers, and organize tracked products into collections. The web app also supports email account verification, password recovery, and an optional Telegram bot for linked accounts.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[Open the live app](https://deal-alert-web.onrender.com) · [Check API readiness](https://deal-alert-web.onrender.com/api/health/ready) · [Browse the application source](https://github.com/shamsiddin-devv/deal-alert/tree/deploy/render-static)
 
-## Description
+## Project structure
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+The `deploy/render-static` branch contains the frontend and backend used by the Render deployment. Check out that branch to run the current application locally.
 
-## Project setup
+| Directory | Purpose |
+| --- | --- |
+| `frontend/` | React and TypeScript web app built with Vite, Tailwind CSS, React Router, and Recharts. |
+| `backend/` | NestJS API with PostgreSQL and Drizzle. The code separates domain rules, application use cases, infrastructure adapters, and HTTP controllers. |
+| `backend/docs/` | API contracts, marketplace configuration, Telegram setup, and deployment instructions. |
+
+Scheduled price checks and the email outbox run inside NestJS. PostgreSQL coordinates job leases and retries. The same service hosts the grammY bot when it is configured.
+
+## Run locally
+
+Use Node.js 24, npm, and PostgreSQL 15 or later. Create an empty local PostgreSQL database before running the migrations.
 
 ```bash
-$ npm install
+git clone --branch deploy/render-static --single-branch https://github.com/shamsiddin-devv/deal-alert.git
+cd deal-alert
 ```
 
-## Compile and run the project
+Copy `backend/.env.example` to `backend/.env` and configure the backend.
+
+| Variable | Local configuration |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string for the local database. |
+| `APP_SECRET` | A unique random secret of at least 32 bytes. |
+| `APP_ORIGIN` | `http://localhost:5173`, matching the exact origin opened in the browser. |
+| `SMTP_URL` and `MAIL_FROM` | SMTP connection and authorized sender for email verification, password recovery, and email alerts. |
+
+Start the backend from the repository root.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm --prefix backend ci
+npm --prefix backend run db:migrate
+npm --prefix backend run start:dev
 ```
 
-## Run tests
+Open a second terminal at the repository root and start the frontend.
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm --prefix frontend ci
+npm --prefix frontend run dev
 ```
 
-## Deployment
+Open [http://localhost:5173](http://localhost:5173). Vite forwards `/api` to `http://127.0.0.1:3000` by default. Set `DEAL_API_PROXY_TARGET` before starting Vite if the backend uses a different address. The API exposes `/api/health` for process health and `/api/health/ready` for database and migration readiness.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Marketplace access
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+The backend includes source profiles for Asaxiy, Mediapark, Texnomart, ISHONCH, OLX, Uzum, NOUT.uz, ComputerHouse, and UPG. Live marketplace requests are disabled when `SCRAPE_APPROVED_SOURCES` is empty. Enable a source only after confirming permitted access and checking its product pages. Configure `SCRAPE_CONTACT` for approved requests. The OLX profile is available for fixture tests only. [Marketplace guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/marketplaces.md)
+
+## Checks
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm --prefix backend test
+npm --prefix backend run db:check
+npm --prefix frontend run build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+The backend suite covers domain rules, source adapters, and HTTP flows with an isolated PGlite database. Run `npm --prefix backend run test:e2e` for the HTTP suite alone. The frontend build runs TypeScript checks before generating `frontend/dist`.
 
-## Resources
+## Production deployment
 
-Check out a few resources that may come in handy when working with NestJS:
+Render serves `frontend/dist` as a Static Site and runs the NestJS API as a Web Service. A rewrite forwards `/api/*` from the frontend origin to the API, and the SPA fallback serves `index.html` for frontend routes. Set `APP_ORIGIN` to the public frontend URL so browser sessions work through the same origin.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Configure the Neon pooled connection as `DATABASE_URL` and the direct connection as `DATABASE_MIGRATION_URL`. Apply Drizzle migrations before starting the API. Use `/api/health/ready` as the Web Service health check. The current deployment uses Brevo SMTP with STARTTLS on port `2525` and a verified `MAIL_FROM` sender. [Render deployment guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/render-deploy.md)
 
-## Support
+To enable Telegram, configure `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, and `TELEGRAM_AUTO_WEBHOOK=true` on the API service. Users link the bot from **Settings → Account → Telegram**. Store database, email, and bot credentials in environment variables and keep `.env` files out of Git. [Telegram setup guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/telegram.md)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API documentation
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [API endpoints and request examples](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/api.md)
+- [Frontend workflows and API mapping](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/frontend-api-map.md)
