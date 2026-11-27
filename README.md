@@ -2,11 +2,9 @@
 
 Deal Alert tracks product prices across supported Uzbek marketplaces. Save listings, set target prices, follow price history, compare matching offers, and organize tracked products into collections. The web app also supports email account verification, password recovery, and an optional Telegram bot for linked accounts.
 
-[Open the live app](https://deal-alert-web.onrender.com) · [Check API readiness](https://deal-alert-web.onrender.com/api/health/ready) · [Browse the application source](https://github.com/shamsiddin-devv/deal-alert/tree/deploy/render-static)
+[Open the live app](https://deal-alert-web.onrender.com) · [Check API readiness](https://deal-alert-web.onrender.com/api/health/ready)
 
 ## Project structure
-
-The `deploy/render-static` branch contains the frontend and backend used by the Render deployment. Check out that branch to run the current application locally.
 
 | Directory | Purpose |
 | --- | --- |
@@ -21,7 +19,7 @@ Scheduled price checks and the email outbox run inside NestJS. PostgreSQL coordi
 Use Node.js 24, npm, and PostgreSQL 15 or later. Create an empty local PostgreSQL database before running the migrations.
 
 ```bash
-git clone --branch deploy/render-static --single-branch https://github.com/shamsiddin-devv/deal-alert.git
+git clone https://github.com/shamsiddin-devv/deal-alert.git
 cd deal-alert
 ```
 
@@ -53,7 +51,7 @@ Open [http://localhost:5173](http://localhost:5173). Vite forwards `/api` to `ht
 
 ## Marketplace access
 
-The backend includes source profiles for Asaxiy, Mediapark, Texnomart, ISHONCH, OLX, Uzum, NOUT.uz, ComputerHouse, and UPG. Live marketplace requests are disabled when `SCRAPE_APPROVED_SOURCES` is empty. Enable a source only after confirming permitted access and checking its product pages. Configure `SCRAPE_CONTACT` for approved requests. The OLX profile is available for fixture tests only. [Marketplace guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/marketplaces.md)
+The backend includes source profiles for Asaxiy, Mediapark, Texnomart, ISHONCH, OLX, Uzum, NOUT.uz, ComputerHouse, and UPG. Live marketplace requests are disabled when `SCRAPE_APPROVED_SOURCES` is empty. Enable a source only after confirming permitted access and checking its product pages. Configure `SCRAPE_CONTACT` for approved requests. The OLX profile is available for fixture tests only. [Marketplace guide](backend/docs/marketplaces.md)
 
 ## Checks
 
@@ -67,13 +65,13 @@ The backend suite covers domain rules, source adapters, and HTTP flows with an i
 
 ## Production deployment
 
-Render serves `frontend/dist` as a Static Site and runs the NestJS API as a Web Service. A rewrite forwards `/api/*` from the frontend origin to the API, and the SPA fallback serves `index.html` for frontend routes. Set `APP_ORIGIN` to the public frontend URL so browser sessions work through the same origin.
+The live Render services deploy from the `deploy/render-static` branch. Render serves `frontend/dist` as a Static Site and runs the NestJS API as a Web Service. A rewrite forwards `/api/*` from the frontend origin to the API, and the SPA fallback serves `index.html` for frontend routes. Set `APP_ORIGIN` to the public frontend URL so browser sessions work through the same origin.
 
-Configure the Neon pooled connection as `DATABASE_URL` and the direct connection as `DATABASE_MIGRATION_URL`. Apply Drizzle migrations before starting the API. Use `/api/health/ready` as the Web Service health check. The current deployment uses Brevo SMTP with STARTTLS on port `2525` and a verified `MAIL_FROM` sender. [Render deployment guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/render-deploy.md)
+Configure the Neon pooled connection as `DATABASE_URL` and the direct connection as `DATABASE_MIGRATION_URL`. Apply Drizzle migrations before starting the API. Use `/api/health/ready` as the Web Service health check. The current deployment uses Brevo SMTP with STARTTLS on port `2525` and a verified `MAIL_FROM` sender. [Render deployment guide](backend/docs/render-deploy.md)
 
-To enable Telegram, configure `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, and `TELEGRAM_AUTO_WEBHOOK=true` on the API service. Users link the bot from **Settings → Account → Telegram**. Store database, email, and bot credentials in environment variables and keep `.env` files out of Git. [Telegram setup guide](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/telegram.md)
+To enable Telegram, configure `TELEGRAM_BOT_TOKEN`, `TELEGRAM_BOT_USERNAME`, and `TELEGRAM_AUTO_WEBHOOK=true` on the API service. Users link the bot from **Settings → Account → Telegram**. Store database, email, and bot credentials in environment variables and keep `.env` files out of Git. [Telegram setup guide](backend/docs/telegram.md)
 
 ## API documentation
 
-- [API endpoints and request examples](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/api.md)
-- [Frontend workflows and API mapping](https://github.com/shamsiddin-devv/deal-alert/blob/deploy/render-static/backend/docs/frontend-api-map.md)
+- [API endpoints and request examples](backend/docs/api.md)
+- [Frontend workflows and API mapping](backend/docs/frontend-api-map.md)

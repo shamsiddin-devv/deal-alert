@@ -1,0 +1,65 @@
+services:
+  - type: web
+    name: deal-alert-web
+    runtime: static
+    buildCommand: npm --prefix frontend ci --include=dev && npm --prefix frontend run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+    routes:
+      - type: rewrite
+        source: /app
+        destination: /index.html
+      - type: rewrite
+        source: /app/*
+        destination: /index.html
+      - type: rewrite
+        source: /login
+        destination: /index.html
+      - type: rewrite
+        source: /signup
+        destination: /index.html
+      - type: rewrite
+        source: /forgot-password
+        destination: /index.html
+      - type: rewrite
+        source: /reset-password
+        destination: /index.html
+      - type: rewrite
+        source: /verify-email
+        destination: /index.html
+
+  - type: web
+    name: deal-alert-api
+    runtime: node
+    plan: free
+    buildCommand: npm --prefix backend ci --include=dev && npm --prefix backend run build
+    startCommand: cd backend && npm run db:migrate && npm run start:prod
+    healthCheckPath: /api/health/ready
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_ORIGIN
+        fromService:
+          type: web
+          name: deal-alert-web
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: APP_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      - key: SMTP_URL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        sync: false
+      - key: TELEGRAM_AUTO_WEBHOOK
+        value: "true"

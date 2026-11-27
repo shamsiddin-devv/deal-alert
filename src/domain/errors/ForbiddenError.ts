@@ -1,8 +1,0 @@
-import { DomainError } from "./DomainError";
-
-export class ForbiddenError extends DomainError {
-  constructor(message: string) {
-    super(message, 403);
-    this.name = 'ForbiddenError';
-  };
-};
